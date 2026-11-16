@@ -145,6 +145,15 @@ Once running:
 
 ---
 
+## ☁️ Live Deployments
+
+- 🌐 **Frontend (Vercel):** [https://plant-leaf-disease-detection-system-five.vercel.app](https://plant-leaf-disease-detection-system-five.vercel.app)
+- ⚙️ **Backend API (Render):** [https://plant-leaf-disease-detection-system-snr3.onrender.com](https://plant-leaf-disease-detection-system-snr3.onrender.com)
+- 📖 **Interactive Swagger Docs:** [https://plant-leaf-disease-detection-system-snr3.onrender.com/docs](https://plant-leaf-disease-detection-system-snr3.onrender.com/docs)
+- 📦 **GitHub Repository:** [https://github.com/rajeshrakshit-ops/plant-leaf-disease-detection-system](https://github.com/rajeshrakshit-ops/plant-leaf-disease-detection-system)
+
+---
+
 ## ☁️ Deployment Guide
 
 ### Deploy Backend to Render (https://render.com)
@@ -153,13 +162,13 @@ Once running:
 2. Sign in to [Render Dashboard](https://dashboard.render.com).
 3. Click **New +** > **Web Service** > Connect your GitHub repository.
 4. Configure service settings:
-   - **Name**: `plantguard-backend`
+   - **Name**: `plant-leaf-disease-detection-system`
    - **Environment**: `Python`
    - **Build Command**: `pip install -r backend/requirements.txt`
    - **Start Command**: `uvicorn backend.app:app --host 0.0.0.0 --port $PORT`
    - *(Optional Blueprint)*: Alternatively, use **New +** > **Blueprint** and Render will automatically detect [`render.yaml`](file:///c:/Users/rajes/OneDrive/Desktop/plant%20leaf%20disease%20detections%20system/render.yaml).
 5. Click **Create Web Service**.
-6. Once deployed, Render provides your public URL: e.g. `https://plantguard-backend.onrender.com`.
+6. Render URL: `https://plant-leaf-disease-detection-system-snr3.onrender.com`.
 
 ---
 
@@ -170,8 +179,8 @@ Once running:
 3. Configure project settings:
    - **Root Directory**: `frontend` (or leave as root `/` with `outputDirectory: frontend` in [`vercel.json`](file:///c:/Users/rajes/OneDrive/Desktop/plant%20leaf%20disease%20detections%20system/vercel.json))
    - **Framework Preset**: `Other`
-4. In [`vercel.json`](file:///c:/Users/rajes/OneDrive/Desktop/plant%20leaf%20disease%20detections%20system/vercel.json), replace `https://plantguard-backend.onrender.com` with your real Render URL so API calls are automatically routed to your backend.
+4. [`vercel.json`](file:///c:/Users/rajes/OneDrive/Desktop/plant%20leaf%20disease%20detections%20system/vercel.json) automatically proxies `/api/*` to `https://plant-leaf-disease-detection-system-snr3.onrender.com`.
 5. Click **Deploy**.
-6. *(Optional)*: You can also change or test your connected backend at any time directly in the web app UI by clicking the **"API: Auto"** settings button in the top navigation bar!
+6. Vercel URL: `https://plant-leaf-disease-detection-system-five.vercel.app`.
 
 

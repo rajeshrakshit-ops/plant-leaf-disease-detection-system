@@ -4,8 +4,7 @@
   "rewrites": [
     {
       "source": "/api/:match*",
-      "destination": "https://plantguard-backend.onrender.com/api/:match*"
+      "destination": "https://plant-leaf-disease-detection-system-snr3.onrender.com/api/:match*"
     }
   ]
 }
-

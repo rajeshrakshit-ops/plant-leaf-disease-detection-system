@@ -69,6 +69,8 @@ let allDiseases = [];
 // ==========================
 // 0. API Base URL Resolver
 // ==========================
+const DEFAULT_PRODUCTION_API_URL = "https://plant-leaf-disease-detection-system-snr3.onrender.com";
+
 function getApiBaseUrl() {
   const custom = localStorage.getItem("plantguard_backend_url");
   if (custom && custom.trim()) {
@@ -78,8 +80,8 @@ function getApiBaseUrl() {
   if (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") {
     return "";
   }
-  // If deployed on Vercel, returns "" (uses vercel.json rewrite) or saved Render backend
-  return "";
+  // If deployed on Vercel, default directly to live Render backend
+  return DEFAULT_PRODUCTION_API_URL;
 }
 
 function apiUrl(endpoint) {
@@ -89,17 +91,20 @@ function apiUrl(endpoint) {
 }
 
 function updateApiConfigUI() {
-  const current = localStorage.getItem("plantguard_backend_url");
-  if (current) {
+  const custom = localStorage.getItem("plantguard_backend_url");
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+  const activeUrl = custom || (!isLocal ? DEFAULT_PRODUCTION_API_URL : "");
+
+  if (activeUrl) {
     try {
-      const u = new URL(current);
+      const u = new URL(activeUrl);
       if (apiConfigBtnLabel) apiConfigBtnLabel.textContent = `API: ${u.hostname.split('.')[0]}`;
     } catch {
-      if (apiConfigBtnLabel) apiConfigBtnLabel.textContent = "API: Custom";
+      if (apiConfigBtnLabel) apiConfigBtnLabel.textContent = "API: Connected";
     }
-    if (apiBaseUrlInput) apiBaseUrlInput.value = current;
+    if (apiBaseUrlInput) apiBaseUrlInput.value = activeUrl;
   } else {
-    if (apiConfigBtnLabel) apiConfigBtnLabel.textContent = "API: Auto";
+    if (apiConfigBtnLabel) apiConfigBtnLabel.textContent = "API: Local";
     if (apiBaseUrlInput) apiBaseUrlInput.value = "";
   }
 }
