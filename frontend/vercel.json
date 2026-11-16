@@ -1,0 +1,10 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/api/:match*",
+      "destination": "https://plantguard-backend.onrender.com/api/:match*"
+    }
+  ]
+}
+

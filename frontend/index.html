@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PlantGuard AI - Plant Leaf Disease Detection System</title>
+  <!-- Tailwind CSS CDN for modern utility styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans flex flex-col antialiased selection:bg-emerald-500 selection:text-white">
+
+  <!-- Navigation Bar -->
+  <header class="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-emerald-500/20 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center shadow-lg shadow-emerald-500/20 text-white">
+          <i class="fa-solid fa-leaf text-xl"></i>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 via-teal-300 to-green-400 bg-clip-text text-transparent">
+            PlantGuard AI
+          </h1>
+          <p class="text-xs text-slate-400">Deep Learning Leaf Pathology & Agronomy Advisor</p>
+        </div>
+      </div>
+
+      <!-- System Telemetry Badge & API Config -->
+      <div class="flex items-center space-x-3">
+        <div id="systemStatusBadge" class="hidden sm:flex items-center space-x-2 text-xs bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-full text-slate-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="backendStatusText">Connecting...</span>
+        </div>
+        <button id="apiConfigBtn" title="Configure Backend API URL" class="text-xs bg-slate-800/80 hover:bg-slate-700 border border-slate-700/60 px-2.5 py-1.5 rounded-full text-slate-300 hover:text-white transition flex items-center space-x-1.5">
+          <i class="fa-solid fa-server text-teal-400"></i>
+          <span class="hidden md:inline" id="apiConfigBtnLabel">API: Auto</span>
+          <i class="fa-solid fa-gear text-[10px] text-slate-400"></i>
+        </button>
+        <a href="#librarySection" class="text-sm font-medium text-emerald-400 hover:text-emerald-300 transition flex items-center space-x-1">
+          <i class="fa-solid fa-book-medical"></i>
+          <span class="hidden md:inline">Disease Library</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+    <!-- Hero Pitch -->
+    <section class="text-center max-w-3xl mx-auto space-y-4">
+      <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold">
+        <i class="fa-solid fa-microchip"></i>
+        <span>38 Classes • PlantVillage AI Model • Instant Diagnosis</span>
+      </div>
+      <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+        Diagnose Crop Diseases in <span class="bg-gradient-to-r from-emerald-400 to-teal-300 bg-clip-text text-transparent">Milliseconds</span>
+      </h2>
+      <p class="text-slate-400 text-sm sm:text-base">
+        Upload or capture a photo of any crop leaf (Tomato, Potato, Apple, Corn, Grape, and more).
+        Our neural network identifies pathogens and delivers immediate organic and chemical treatments.
+      </p>
+    </section>
+
+    <!-- Upload & Diagnosis Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- Left Column: Image Input Area (5 Cols) -->
+      <div class="lg:col-span-5 bg-slate-800/60 border border-slate-700/60 backdrop-blur-xl rounded-2xl p-6 shadow-2xl space-y-6">
+        <div class="flex items-center justify-between border-b border-slate-700/50 pb-4">
+          <h3 class="font-semibold text-lg flex items-center space-x-2 text-white">
+            <i class="fa-solid fa-camera text-emerald-400"></i>
+            <span>Leaf Image Input</span>
+          </h3>
+          <span class="text-xs text-slate-400">JPG, PNG, WEBP</span>
+        </div>
+
+        <!-- Drag & Drop Zone -->
+        <div id="dropZone" class="group relative border-2 border-dashed border-slate-600 hover:border-emerald-400 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all bg-slate-900/40 hover:bg-emerald-950/20">
+          <input type="file" id="fileInput" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer z-10" />
+
+          <!-- Placeholder State -->
+          <div id="dropPrompt" class="space-y-3 pointer-events-none">
+            <div class="w-16 h-16 rounded-full bg-slate-800 group-hover:bg-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto transition">
+              <i class="fa-solid fa-cloud-arrow-up text-2xl"></i>
+            </div>
+            <div>
+              <p class="font-medium text-slate-200">Drag & drop your leaf image</p>
+              <p class="text-xs text-slate-400 mt-1">or click to browse from device</p>
+            </div>
+          </div>
+
+          <!-- Preview State -->
+          <div id="previewContainer" class="hidden relative w-full flex flex-col items-center">
+            <img id="imagePreview" src="" alt="Selected Leaf" class="w-full max-h-72 object-contain rounded-xl border border-slate-700 shadow-md" />
+            <button id="removeImageBtn" type="button" class="absolute top-2 right-2 bg-slate-900/80 hover:bg-red-600 text-white rounded-full p-2 text-xs shadow-lg transition">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button id="webcamBtn" type="button" class="flex-1 py-3 px-4 rounded-xl bg-slate-700/60 hover:bg-slate-700 border border-slate-600 text-slate-200 font-medium text-sm flex items-center justify-center space-x-2 transition">
+            <i class="fa-solid fa-video text-teal-400"></i>
+            <span>Take Photo</span>
+          </button>
+          <button id="analyzeBtn" type="button" disabled class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold text-sm flex items-center justify-center space-x-2 shadow-lg shadow-emerald-600/30 transition">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span id="analyzeBtnText">Run Diagnosis</span>
+          </button>
+        </div>
+
+        <!-- Live Camera Modal -->
+        <div id="cameraModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="font-semibold text-slate-200">Capture Leaf Photo</h4>
+              <button id="closeCameraBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <video id="webcamVideo" autoplay playsinline class="w-full h-64 bg-black rounded-xl object-cover"></video>
+            <canvas id="webcamCanvas" class="hidden"></canvas>
+            <div class="flex justify-end space-x-3">
+              <button id="snapPhotoBtn" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white font-medium flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-camera"></i>
+                <span>Capture & Use</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Sample Leaf Selector -->
+        <div class="pt-2 border-t border-slate-700/50">
+          <p class="text-xs text-slate-400 mb-2 font-medium">Quick Test with Demo Leaf Types:</p>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <button class="sample-btn px-2.5 py-1 bg-slate-700/50 hover:bg-emerald-600/30 rounded-lg text-slate-300 border border-slate-600/50" data-sample="tomato_early_blight">Tomato (Early Blight)</button>
+            <button class="sample-btn px-2.5 py-1 bg-slate-700/50 hover:bg-emerald-600/30 rounded-lg text-slate-300 border border-slate-600/50" data-sample="potato_late_blight">Potato (Late Blight)</button>
+            <button class="sample-btn px-2.5 py-1 bg-slate-700/50 hover:bg-emerald-600/30 rounded-lg text-slate-300 border border-slate-600/50" data-sample="apple_scab">Apple (Apple Scab)</button>
+            <button class="sample-btn px-2.5 py-1 bg-slate-700/50 hover:bg-emerald-600/30 rounded-lg text-slate-300 border border-slate-600/50" data-sample="corn_healthy">Corn (Healthy)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column: Diagnostic Report (7 Cols) -->
+      <div class="lg:col-span-7 bg-slate-800/60 border border-slate-700/60 backdrop-blur-xl rounded-2xl p-6 shadow-2xl space-y-6">
+
+        <!-- Default Empty State -->
+        <div id="emptyResultState" class="py-16 text-center space-y-4 text-slate-400">
+          <div class="w-20 h-20 rounded-2xl bg-slate-800 border border-slate-700 flex items-center justify-center mx-auto text-3xl text-slate-500">
+            <i class="fa-solid fa-stethoscope"></i>
+          </div>
+          <div>
+            <h4 class="text-lg font-semibold text-slate-300">Ready for Leaf Diagnosis</h4>
+            <p class="text-sm text-slate-400 mt-1 max-w-sm mx-auto">
+              Select or take a photo of a crop leaf and click "Run Diagnosis" to view pathology, pathogen details, and agronomic cures.
+            </p>
+          </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loadingState" class="hidden py-16 text-center space-y-4">
+          <div class="w-16 h-16 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin mx-auto"></div>
+          <p class="text-sm font-medium text-emerald-400">Analyzing leaf cellular features with Neural Network...</p>
+        </div>
+
+        <!-- Result Content Container -->
+        <div id="resultsContainer" class="hidden space-y-6">
+
+          <!-- Diagnosis Banner -->
+          <div id="diagnosisBanner" class="p-5 rounded-2xl border transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <div class="flex items-center space-x-2">
+                <span id="healthBadge" class="px-2.5 py-0.5 rounded-full text-xs font-semibold tracking-wide uppercase"></span>
+                <span id="categoryBadge" class="px-2.5 py-0.5 rounded-full text-xs bg-slate-700 text-slate-300"></span>
+              </div>
+              <h3 id="diseaseHeading" class="text-2xl font-bold text-white"></h3>
+              <p class="text-xs text-slate-400">Target Crop: <span id="cropName" class="font-medium text-slate-200"></span> • Pathogen: <span id="pathogenName" class="font-mono text-emerald-300 italic"></span></p>
+            </div>
+
+            <!-- Confidence Meter -->
+            <div class="bg-slate-900/60 border border-slate-700/60 rounded-xl p-3 min-w-[130px] text-center">
+              <p class="text-[10px] uppercase tracking-wider text-slate-400">Confidence</p>
+              <p id="confidenceScore" class="text-2xl font-extrabold text-emerald-400"></p>
+              <div class="w-full bg-slate-800 rounded-full h-1.5 mt-1 overflow-hidden">
+                <div id="confidenceBar" class="bg-emerald-500 h-1.5 rounded-full" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Symptoms Section -->
+          <div class="bg-slate-900/50 border border-slate-700/50 rounded-xl p-4">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center space-x-2 mb-2">
+              <i class="fa-solid fa-magnifying-glass-chart text-emerald-400"></i>
+              <span>Visual Symptoms Identified</span>
+            </h4>
+            <p id="symptomsText" class="text-sm text-slate-300 leading-relaxed"></p>
+          </div>
+
+          <!-- Treatment & Management Tabs -->
+          <div class="space-y-3">
+            <div class="flex border-b border-slate-700 text-sm font-medium">
+              <button id="tabOrganicBtn" class="px-4 py-2 border-b-2 border-emerald-400 text-emerald-400 flex items-center space-x-2">
+                <i class="fa-solid fa-seedling"></i>
+                <span>Organic Treatments</span>
+              </button>
+              <button id="tabChemicalBtn" class="px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2">
+                <i class="fa-solid fa-flask"></i>
+                <span>Chemical Controls</span>
+              </button>
+              <button id="tabPreventionBtn" class="px-4 py-2 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center space-x-2">
+                <i class="fa-solid fa-shield-halved"></i>
+                <span>Prevention & Care</span>
+              </button>
+            </div>
+
+            <div id="tabContentOrganic" class="p-4 bg-slate-900/40 rounded-xl border border-slate-800 text-sm space-y-2">
+              <ul id="organicList" class="space-y-2 text-slate-300 list-disc list-inside"></ul>
+            </div>
+
+            <div id="tabContentChemical" class="hidden p-4 bg-slate-900/40 rounded-xl border border-slate-800 text-sm space-y-2">
+              <ul id="chemicalList" class="space-y-2 text-slate-300 list-disc list-inside"></ul>
+            </div>
+
+            <div id="tabContentPrevention" class="hidden p-4 bg-slate-900/40 rounded-xl border border-slate-800 text-sm space-y-2">
+              <ul id="preventionList" class="space-y-2 text-slate-300 list-disc list-inside"></ul>
+            </div>
+          </div>
+
+          <!-- Alternative Predictions / Top-3 Candidates -->
+          <div class="bg-slate-900/30 border border-slate-800 rounded-xl p-4">
+            <h4 class="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-3 flex items-center space-x-1">
+              <i class="fa-solid fa-chart-simple text-emerald-400"></i>
+              <span>Top Model Candidates & Probabilities</span>
+            </h4>
+            <div id="topCandidatesList" class="space-y-2"></div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- 38-Class Disease Encyclopedia Section -->
+    <section id="librarySection" class="pt-8 border-t border-slate-800 space-y-6">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h3 class="text-2xl font-bold text-white flex items-center space-x-2">
+            <i class="fa-solid fa-book-open text-emerald-400"></i>
+            <span>Plant Disease Encyclopedia (38 Classes)</span>
+          </h3>
+          <p class="text-sm text-slate-400 mt-1">Browse, filter, and study agricultural pathogen profiles from PlantVillage dataset.</p>
+        </div>
+
+        <!-- Filter Controls -->
+        <div class="flex flex-wrap items-center gap-3">
+          <input type="text" id="librarySearchInput" placeholder="Search disease, symptoms..." class="bg-slate-800 border border-slate-700 text-sm text-slate-200 rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-500 w-48 sm:w-64" />
+          <select id="plantFilterSelect" class="bg-slate-800 border border-slate-700 text-sm text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
+            <option value="">All Crops</option>
+          </select>
+          <select id="categoryFilterSelect" class="bg-slate-800 border border-slate-700 text-sm text-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:border-emerald-500">
+            <option value="">All Categories</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Disease Cards Grid -->
+      <div id="diseaseCardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Rendered dynamically via app.js -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t border-slate-800 bg-slate-950 py-6 px-6 mt-16 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p>PlantGuard AI System • Deep Learning Crop Health Diagnosis Platform</p>
+      <p class="text-slate-400">Designed with Antigravity • PyTorch • FastAPI • Tailwind CSS</p>
+    </div>
+  </footer>
+
+  <!-- API Config Modal (For Vercel -> Render cross-origin deployment) -->
+  <div id="apiConfigModal" class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-md w-full p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h4 class="font-semibold text-slate-100 flex items-center space-x-2">
+          <i class="fa-solid fa-network-wired text-emerald-400"></i>
+          <span>Backend API Settings</span>
+        </h4>
+        <button id="closeApiConfigBtn" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <p class="text-xs text-slate-400 leading-relaxed">
+        When deployed on <strong>Vercel</strong>, connect to your <strong>Render</strong> backend service (e.g. <span class="text-emerald-300 font-mono">https://plantguard-backend.onrender.com</span>).
+      </p>
+      <div class="space-y-1">
+        <label class="text-xs font-medium text-slate-300">Backend Base URL</label>
+        <input type="text" id="apiBaseUrlInput" placeholder="https://your-backend.onrender.com" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-emerald-400 font-mono" />
+      </div>
+      <div class="flex justify-between items-center pt-2">
+        <button id="resetApiBaseUrlBtn" class="text-xs text-slate-400 hover:text-rose-400 underline">Reset to Local</button>
+        <button id="saveApiBaseUrlBtn" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-white font-semibold text-xs shadow-md transition">Save & Reconnect</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
